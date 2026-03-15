@@ -1,7 +1,6 @@
 """Extraction layer — Tavily for public URLs, Playwright fallback for JS-heavy sites, direct fetch for proxy/local."""
 
-import asyncio
-
+import signal
 import httpx
 from bs4 import BeautifulSoup
 from tavily import TavilyClient
@@ -9,13 +8,25 @@ from tavily import TavilyClient
 from app.config import TAVILY_API_KEY
 
 
-def _extract_with_tavily(url: str) -> str:
-    """Use Tavily for public URLs."""
+class _Timeout(Exception):
+    pass
+
+
+def _extract_with_tavily(url: str, timeout_sec: int = 30) -> str:
+    """Use Tavily for public URLs with a timeout."""
     client = TavilyClient(api_key=TAVILY_API_KEY)
-    result = client.extract([url])
-    if not result.get("results"):
+    try:
+        # Use threading-based timeout since Tavily client is synchronous
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(client.extract, [url])
+            result = future.result(timeout=timeout_sec)
+        if not result.get("results"):
+            return ""
+        return result["results"][0].get("raw_content", "")
+    except (concurrent.futures.TimeoutError, Exception) as e:
+        print(f"Tavily extraction failed/timed out for {url}: {e}")
         return ""
-    return result["results"][0].get("raw_content", "")
 
 
 def _extract_direct(url: str) -> str:
@@ -43,7 +54,13 @@ def _extract_with_playwright(url: str) -> str:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1280, "height": 800})
-        page.goto(url, wait_until="domcontentloaded", timeout=20000)
+        try:
+            page.goto(url, wait_until="load", timeout=30000)
+        except Exception:
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            except Exception:
+                pass
         # Wait for content to render
         page.wait_for_timeout(3000)
 

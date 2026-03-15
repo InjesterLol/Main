@@ -5,6 +5,7 @@ content to generate relevant benchmark questions and agent task definitions.
 """
 
 import json
+from typing import Optional
 
 import openai
 
@@ -16,7 +17,7 @@ nebius_client = openai.OpenAI(
 )
 
 
-def generate_questions(content: str, num_questions: int = 5, objective: str | None = None) -> list[str]:
+def generate_questions(content: str, num_questions: int = 5, objective: Optional[str] = None) -> list[str]:
     """Generate benchmark questions from page content, optionally focused on an objective."""
     objective_clause = ""
     if objective:
