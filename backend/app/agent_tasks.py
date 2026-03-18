@@ -46,9 +46,9 @@ def get_united_tasks(trip=None):
         {
             "id": "select_flight",
             "name": "Select a flight",
-            "description": "Choose the cheapest available nonstop flight from the search results",
+            "description": "Choose the first nonstop flight from the search results by clicking its Select button",
             "actions": [
-                {"type": "click", "target": "select button for the cheapest nonstop flight"},
+                {"type": "click", "target": "the Select button on the first nonstop flight card (look for button with data-action='select-flight')"},
             ],
             "success_condition": "A specific flight is selected and passenger form appears",
         },

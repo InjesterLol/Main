@@ -16,7 +16,7 @@ from app.extractor import extract_url
 from app.html_generator import generate_optimized_html
 from app.karpathy_loop import run_loop
 from app.optimizer import optimize_content
-from app.ws import agent_event_callback
+from app.ws import agent_event_callback, broadcast_sync
 
 router = APIRouter()
 
@@ -185,11 +185,18 @@ def api_generate(req: LoopRequest):
     if req.site_type not in ("united", "airbnb"):
         agent_tasks = generate_agent_tasks(raw_content)
 
+    # Emit extracting phase
+    broadcast_sync({"type": "demo_phase", "phase": "optimizing"})
+
     # Run Karpathy loop to get best optimization
+    def _on_iteration(entry):
+        broadcast_sync({"type": "demo_phase", "phase": "loop_entry", "loop_entry": entry})
+
     loop_result = run_loop(
         raw_content,
         questions,
         max_iterations=req.max_iterations,
+        on_iteration=_on_iteration,
     )
 
     # Generate browsable HTML from the best optimization
@@ -340,21 +347,18 @@ async def api_demo(req: DemoRequest):
     await agent_event_callback({"type": "demo_phase", "phase": "extracting"})
     extracted = _do_extract(proxy_url, use_tavily=False)
 
-    # Phase: optimizing (Karpathy loop)
+    # Phase: optimizing (Karpathy loop — streams each iteration live)
     await agent_event_callback({"type": "demo_phase", "phase": "optimizing"})
+
+    def _on_demo_iteration(entry):
+        broadcast_sync({"type": "demo_phase", "phase": "loop_entry", "loop_entry": entry})
+
     loop_result = run_loop(
         extracted["raw_content"],
         questions,
         max_iterations=req.max_iterations,
+        on_iteration=_on_demo_iteration,
     )
-
-    # Emit each loop entry for real-time timeline updates
-    for entry in loop_result.get("log", []):
-        await agent_event_callback({
-            "type": "demo_phase",
-            "phase": "loop_entry",
-            "loop_entry": entry,
-        })
 
     # Phase: generation_complete
     html_result = generate_optimized_html(
@@ -370,23 +374,23 @@ async def api_demo(req: DemoRequest):
         "proxy_url": proxy_url,
     })
 
-    # Phase: agent on raw site
-    await agent_event_callback({"type": "demo_phase", "phase": "agent_running_raw", "url": proxy_url})
-    raw_agent = await run_agent(
-        url=proxy_url,
-        site_type=req.site_type,
-        headless=True,
-        on_event=agent_event_callback,
-    )
-
-    # Phase: agent on optimized site
+    # Phase: run both agents concurrently
     optimized_url = f"http://localhost:8000{generated_url}"
-    await agent_event_callback({"type": "demo_phase", "phase": "agent_running_optimized", "url": optimized_url})
-    optimized_agent = await run_agent(
-        url=optimized_url,
-        site_type=req.site_type,
-        headless=True,
-        on_event=agent_event_callback,
+    await agent_event_callback({"type": "demo_phase", "phase": "agent_running_raw", "url": proxy_url})
+
+    raw_agent, optimized_agent = await asyncio.gather(
+        run_agent(
+            url=proxy_url,
+            site_type=req.site_type,
+            headless=True,
+            on_event=agent_event_callback,
+        ),
+        run_agent(
+            url=optimized_url,
+            site_type=req.site_type,
+            headless=True,
+            on_event=agent_event_callback,
+        ),
     )
 
     # Phase: complete

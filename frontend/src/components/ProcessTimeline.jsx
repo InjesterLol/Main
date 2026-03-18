@@ -6,17 +6,24 @@ function getNodeColor(score, total) {
   return 'var(--accent-red)'
 }
 
-export default function ProcessTimeline({ loopLog, visible }) {
+export default function ProcessTimeline({ loopLog, visible, running }) {
   const [expandedNode, setExpandedNode] = useState(null)
 
   if (!visible || !loopLog || loopLog.length === 0) return null
+
+  const lastEntry = loopLog[loopLog.length - 1]
+  const isPerfect = lastEntry && lastEntry.score === lastEntry.total
 
   return (
     <section className={`story-section ${visible ? 'section-visible' : ''}`}>
       <div className="section-label">KARPATHY AUTORESEARCH</div>
 
       <p className="section-tagline">
-        Iteratively optimizing until the agent succeeds
+        {running && !isPerfect
+          ? 'Self-improving optimization in progress...'
+          : isPerfect
+            ? 'Perfect score achieved — all benchmark questions answered'
+            : 'Iteratively optimizing until the agent succeeds'}
       </p>
 
       <div className="timeline">
@@ -53,6 +60,17 @@ export default function ProcessTimeline({ loopLog, visible }) {
             </div>
           )
         })}
+
+        {running && !isPerfect && (
+          <div className="timeline-step">
+            <div className="timeline-connector">
+              <span className="timeline-arrow">→</span>
+            </div>
+            <div className="timeline-node timeline-node-pending">
+              <div className="spinner" style={{ width: 20, height: 20 }} />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )

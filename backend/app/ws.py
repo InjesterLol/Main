@@ -33,6 +33,18 @@ async def agent_event_callback(event: dict):
     await broadcast(event)
 
 
+def broadcast_sync(event: dict):
+    """Synchronous wrapper for broadcasting from non-async code (e.g., Karpathy loop).
+
+    Schedules the broadcast on the running event loop.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(broadcast(event))
+    except RuntimeError:
+        pass  # No event loop running, skip
+
+
 @router.websocket("/ws/agent")
 async def websocket_agent(websocket: WebSocket):
     """WebSocket endpoint for live agent event streaming.

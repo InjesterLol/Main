@@ -7,6 +7,8 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
 NEBIUS_BASE_URL = os.getenv("NEBIUS_BASE_URL", "https://api.studio.nebius.ai/v1/")
 NEBIUS_MODEL = os.getenv("NEBIUS_MODEL", "meta-llama/Meta-Llama-3.1-70B-Instruct")
+# Fast model for agent selector tasks (doesn't need large model for CSS selectors)
+NEBIUS_AGENT_MODEL = os.getenv("NEBIUS_AGENT_MODEL", NEBIUS_MODEL)
 
 # Proxy sites — use env vars if Vishal's proxies are running, else real URLs
 PROXY_UNITED_URL = os.getenv("PROXY_UNITED_URL", "https://www.united.com/en/us")

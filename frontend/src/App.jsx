@@ -38,7 +38,7 @@ function App() {
 
   // Section visibility
   const showProblem = phase !== 'idle'
-  const showTimeline = ['optimizing', 'generation_complete', 'agent_running_raw', 'agent_running_optimized', 'complete'].includes(phase)
+  const showTimeline = ['optimizing', 'generation_complete', 'agent_running_raw', 'agent_running_optimized', 'complete'].includes(phase) && loopLog?.length > 0
   const showComparison = ['generation_complete', 'agent_running_raw', 'agent_running_optimized', 'complete'].includes(phase)
   const showAgent = mode === 'full' && ['agent_running_raw', 'agent_running_optimized', 'complete'].includes(phase)
   const showScore = phase === 'complete'
@@ -75,6 +75,32 @@ function App() {
     }
   }, [])
 
+  // Connect WebSocket for real-time phase updates
+  const connectDemoWs = useCallback(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/agent`)
+    wsRef.current = ws
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      if (data.type === 'demo_phase') {
+        if (['extracting', 'optimizing', 'generation_complete', 'agent_running_raw', 'agent_running_optimized', 'complete'].includes(data.phase)) {
+          setPhase(data.phase)
+        }
+        if (data.proxy_url) {
+          setRawUrl(data.proxy_url)
+          fetchScreenshot(data.proxy_url)
+        }
+        if (data.generated_url) setOptimizedUrl(data.generated_url)
+        if (data.phase === 'loop_entry' && data.loop_entry) {
+          setLoopLog(prev => [...(prev || []), data.loop_entry])
+        }
+      }
+    }
+
+    return ws
+  }, [fetchScreenshot])
+
   const handleIngest = useCallback(async (url, siteType, tripDetails = {}, maxIterations = 3, objective = null) => {
     resetState()
 
@@ -85,8 +111,11 @@ function App() {
 
     fetchScreenshot(url)
 
+    // Connect WebSocket to receive live loop progress
+    const ws = connectDemoWs()
+
     try {
-      // Step 1: Generate optimized HTML (includes Karpathy loop)
+      // Step 1: Generate optimized HTML (includes Karpathy loop — streams via WS)
       setPhase('optimizing')
       const genRes = await fetch('/api/generate', {
         method: 'POST',
@@ -144,34 +173,11 @@ function App() {
     } catch (err) {
       console.error('Ingest error:', err)
       setPhase('complete')
+    } finally {
+      ws.close()
+      wsRef.current = null
     }
-  }, [fetchScreenshot, resetState])
-
-  // Connect WebSocket for real-time phase updates during demo
-  const connectDemoWs = useCallback(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/agent`)
-    wsRef.current = ws
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (data.type === 'demo_phase') {
-        if (['extracting', 'optimizing', 'generation_complete', 'agent_running_raw', 'agent_running_optimized', 'complete'].includes(data.phase)) {
-          setPhase(data.phase)
-        }
-        if (data.proxy_url) {
-          setRawUrl(data.proxy_url)
-          fetchScreenshot(data.proxy_url)
-        }
-        if (data.generated_url) setOptimizedUrl(data.generated_url)
-        if (data.phase === 'loop_entry' && data.loop_entry) {
-          setLoopLog(prev => [...(prev || []), data.loop_entry])
-        }
-      }
-    }
-
-    return ws
-  }, [fetchScreenshot])
+  }, [fetchScreenshot, resetState, connectDemoWs])
 
   const handleDemo = useCallback(async (siteType, tripDetails = {}, maxIterations = 3) => {
     resetState()
@@ -232,6 +238,7 @@ function App() {
         <ProcessTimeline
           loopLog={loopLog}
           visible={showTimeline}
+          running={phase === 'optimizing'}
         />
 
         <ComparisonSection

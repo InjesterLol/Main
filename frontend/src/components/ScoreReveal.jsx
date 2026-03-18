@@ -21,8 +21,8 @@ function charsToTokens(chars) {
 }
 
 function estimateCost(tokens) {
-  // Approximate cost at $3/1M input tokens (Claude Sonnet pricing)
-  return (tokens / 1000000 * 3).toFixed(4)
+  // Approximate cost at $0.30/1M input tokens (Nebius pricing)
+  return (tokens / 1000000 * 0.30).toFixed(4)
 }
 
 export default function ScoreReveal({
@@ -53,18 +53,23 @@ export default function ScoreReveal({
       {/* Agent Task Score (full mode only) */}
       {!optimizeOnly && (
         <>
-          <h3 className="results-sub-header" style={{ marginBottom: 12 }}>Agent Task Completion</h3>
+          <h3 className="results-sub-header" style={{ marginBottom: 8 }}>Agent Task Completion</h3>
+          <p className="token-savings-explainer">
+            Same AI agent, same {total} booking tasks — only the website changed
+          </p>
           <div className="score-reveal">
             <div className="score-reveal-card score-reveal-raw">
               <div className="score-reveal-number">{rawScore ?? 0}/{total}</div>
-              <div className="score-reveal-label">Raw Site</div>
+              <div className="score-reveal-label">Raw Website</div>
+              <div className="score-reveal-detail">Unmodified site</div>
             </div>
 
             <div className="score-reveal-arrow">→</div>
 
             <div className="score-reveal-card score-reveal-optimized">
               <div className="score-reveal-number">{optimizedScore ?? 0}/{total}</div>
-              <div className="score-reveal-label">AI-Optimized</div>
+              <div className="score-reveal-label">Injested Site</div>
+              <div className="score-reveal-detail">Agent-optimized</div>
             </div>
           </div>
         </>
@@ -85,35 +90,38 @@ export default function ScoreReveal({
         </>
       )}
 
-      {/* Token Savings */}
-      {stats?.raw_content_chars > 0 && stats?.optimized_html_chars > 0 && (() => {
+      {/* Content Efficiency */}
+      {stats?.raw_content_chars > 0 && stats?.optimized_json_chars > 0 && (() => {
         const rawTokens = charsToTokens(stats.raw_content_chars)
-        const optTokens = charsToTokens(stats.optimized_html_chars)
-        const savedTokens = rawTokens - optTokens
-        const savedPct = Math.round((1 - optTokens / rawTokens) * 100)
+        const jsonTokens = charsToTokens(stats.optimized_json_chars)
+        const savedTokens = rawTokens - jsonTokens
+        const savedPct = Math.round((1 - jsonTokens / rawTokens) * 100)
         const rawCost = estimateCost(rawTokens)
-        const optCost = estimateCost(optTokens)
+        const jsonCost = estimateCost(jsonTokens)
         return (
           <div className="token-savings">
-            <h3 className="results-sub-header" style={{ marginTop: 32, marginBottom: 16 }}>
-              Agent Token Savings
+            <h3 className="results-sub-header" style={{ marginTop: 32, marginBottom: 8 }}>
+              Content Efficiency
             </h3>
+            <p className="token-savings-explainer">
+              Raw page content stripped down to structured data an agent can act on
+            </p>
             <div className="token-savings-grid">
               <div className="token-savings-card token-savings-raw">
                 <div className="token-savings-number">{formatTokens(rawTokens)}</div>
                 <div className="token-savings-sublabel">~${rawCost} per call</div>
-                <div className="token-savings-label">Raw Website Tokens</div>
+                <div className="token-savings-label">Raw Page Content</div>
               </div>
               <div className="token-savings-arrow">→</div>
               <div className="token-savings-card token-savings-optimized">
-                <div className="token-savings-number">{formatTokens(optTokens)}</div>
-                <div className="token-savings-sublabel">~${optCost} per call</div>
-                <div className="token-savings-label">Optimized Tokens</div>
+                <div className="token-savings-number">{formatTokens(jsonTokens)}</div>
+                <div className="token-savings-sublabel">~${jsonCost} per call</div>
+                <div className="token-savings-label">Structured Agent Data</div>
               </div>
               <div className="token-savings-card token-savings-saved">
                 <div className="token-savings-number">{savedPct > 0 ? `${savedPct}%` : `+${Math.abs(savedPct)}%`}</div>
                 <div className="token-savings-sublabel">{savedTokens > 0 ? formatTokens(savedTokens) : formatTokens(Math.abs(savedTokens))} tokens {savedTokens > 0 ? 'saved' : 'added'}</div>
-                <div className="token-savings-label">{savedTokens > 0 ? 'Savings per Request' : 'Size Increase'}</div>
+                <div className="token-savings-label">{savedTokens > 0 ? 'Reduction' : 'Size Increase'}</div>
               </div>
             </div>
           </div>

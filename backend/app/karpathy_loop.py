@@ -56,9 +56,12 @@ def run_loop(
     clean_text: str,
     questions: list[str],
     max_iterations: int = 3,
+    on_iteration=None,
 ) -> dict:
     """Run the full Karpathy AutoResearch optimization loop.
 
+    Args:
+        on_iteration: Optional callback(entry: dict) called after each iteration completes.
     Returns the iteration log and the best result.
     """
     current_prompt = DEFAULT_RESTRUCTURE_PROMPT
@@ -96,6 +99,10 @@ def run_loop(
         if score > best_score:
             best_score = score
             best_result = opt_result
+
+        # Emit progress after each iteration
+        if on_iteration:
+            on_iteration(entry)
 
         # Step 4: If perfect score, stop
         if score == total:

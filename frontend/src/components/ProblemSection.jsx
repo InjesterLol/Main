@@ -29,7 +29,8 @@ export default function ProblemSection({ rawScreenshot, rawAgentScore, visible, 
       {!optimizeOnly && (
         <div className="problem-score">
           <div className="problem-score-number">{rawAgentScore ?? 0}/5</div>
-          <div className="problem-score-label">Agent success rate on raw site</div>
+          <div className="problem-score-label">Booking tasks completed by AI agent</div>
+          <div className="problem-score-detail">An AI agent attempted 5 real booking steps on this unmodified website</div>
         </div>
       )}
     </section>

@@ -337,6 +337,34 @@ body {
   margin-top: 8px;
 }
 
+.problem-score-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+.token-savings-explainer {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.score-reveal-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.timeline-node-pending {
+  border-color: var(--accent-blue) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ===== SECTION 2: PROCESS TIMELINE ===== */
 .timeline {
   display: flex;

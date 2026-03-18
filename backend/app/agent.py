@@ -13,13 +13,16 @@ from typing import Any, Optional
 import openai
 from playwright.async_api import Page, async_playwright
 
-from app.config import NEBIUS_API_KEY, NEBIUS_BASE_URL, NEBIUS_MODEL
+from app.config import NEBIUS_API_KEY, NEBIUS_BASE_URL, NEBIUS_MODEL, NEBIUS_AGENT_MODEL
 from app.agent_tasks import TASK_SETS, get_tasks
 
 nebius_client = openai.AsyncOpenAI(
     api_key=NEBIUS_API_KEY,
     base_url=NEBIUS_BASE_URL,
 )
+
+# Use faster model for agent selector/evaluation tasks
+AGENT_MODEL = NEBIUS_AGENT_MODEL
 
 # Callback type for streaming agent events to WebSocket
 EventCallback = Any  # async callable(event: dict) -> None
@@ -82,17 +85,24 @@ Action to perform: {json.dumps(action)}
 
 Based on the HTML, identify the EXACT element to interact with.
 Return valid JSON with:
-- "selector": a CSS selector or text selector that uniquely identifies the element
-  (prefer: [data-action="..."], [name="..."], [id="..."], button:has-text("..."), label:has-text("...") >> input)
+- "selector": a Playwright-compatible CSS selector that uniquely identifies the element
 - "action": "click", "fill", or "select"
 - "value": the value to type/select (if applicable, from the action above)
 - "confidence": 0-100 how confident you are this is the right element
 - "reasoning": brief explanation of why you chose this element
 
+SELECTOR RULES (IMPORTANT):
+- PREFER attribute selectors: [data-action="..."], [data-flight-id="..."], [name="..."], [id="..."]
+- For buttons with text use: button[data-action="..."] or button:has-text("...")
+- For inputs use: input[name="..."] or input[id="..."] or #id
+- NEVER use :contains() — it is not valid CSS
+- NEVER use :has() with :contains() inside
+- Keep selectors simple and specific
+
 Return ONLY valid JSON, no markdown fencing."""
 
     response = await nebius_client.chat.completions.create(
-        model=NEBIUS_MODEL,
+        model=AGENT_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
     )
@@ -127,8 +137,8 @@ async def _execute_action(page: Page, llm_action: dict) -> dict:
         elif action_type == "select":
             await page.locator(selector).first.select_option(value, timeout=5000)
 
-        # Small wait for page to update
-        await asyncio.sleep(0.5)
+        # Brief wait for page to update
+        await asyncio.sleep(0.2)
         return {"success": True}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -153,7 +163,7 @@ Return valid JSON:
 Return ONLY valid JSON, no markdown fencing."""
 
     response = await nebius_client.chat.completions.create(
-        model=NEBIUS_MODEL,
+        model=AGENT_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
     )
