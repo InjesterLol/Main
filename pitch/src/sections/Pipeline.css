@@ -1,0 +1,491 @@
+.pipeline-section {
+  padding: 6rem 2rem;
+}
+
+.pipeline-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Text column */
+.pipeline-text {
+  padding-bottom: 40vh;
+}
+
+.pipeline-title {
+  font-family: var(--font-mono);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 1rem 0 3rem;
+  line-height: 1.2;
+}
+
+/* Steps */
+.pipeline-step {
+  margin-bottom: 3rem;
+  opacity: 0;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.step-num {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.step-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.pipeline-step h3 {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.pipeline-step p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.step-metric {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.metric-val {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-green);
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Karpathy detail cards */
+.karpathy-detail {
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.iter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.iter-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(255, 140, 66, 0.15);
+  color: var(--accent-orange);
+}
+
+.iter-badge.perfect {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--accent-green);
+}
+
+.iter-score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.iter-failed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.iter-failed-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.iter-failed-q {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.iter-fix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.iter-fix-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.iter-fix-text {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.iter-perfect {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+/* Sticky viz panel */
+.pipeline-viz {
+  position: sticky;
+  top: 3rem;
+}
+
+.viz-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Step dots */
+.viz-steps {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card-elevated);
+}
+
+.viz-step-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-bright);
+  transition: all 0.3s;
+}
+
+.viz-step-dot.active .dot {
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
+}
+
+.viz-step-dot.done .dot {
+  background: var(--accent-green);
+}
+
+.dot-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: color 0.3s;
+}
+
+.viz-step-dot.active .dot-label {
+  color: var(--accent-blue);
+}
+
+.viz-step-dot.done .dot-label {
+  color: var(--accent-green);
+}
+
+/* Panels */
+.viz-panel {
+  padding: 1.25rem;
+  min-height: 400px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.viz-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.viz-badge-green {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--accent-green);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 3px;
+}
+
+.viz-badge-blue {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(74, 158, 255, 0.1);
+  color: var(--accent-blue);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 3px;
+}
+
+.viz-badge-orange {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 140, 66, 0.1);
+  color: var(--accent-orange);
+  border: 1px solid rgba(255, 140, 66, 0.2);
+  border-radius: 3px;
+}
+
+/* Extract flow */
+.viz-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flow-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: all 0.5s;
+}
+
+.flow-box.active {
+  border-color: var(--accent-green);
+  box-shadow: var(--glow-green);
+}
+
+.flow-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.flow-tokens {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+}
+
+.flow-box.flow-clean .flow-tokens {
+  color: var(--accent-green);
+}
+
+.flow-detail {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.flow-arrow {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  color: var(--text-muted);
+}
+
+/* Reduction bar */
+.viz-reduction {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reduction-bar {
+  height: 6px;
+  background: var(--bg-card-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.reduction-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+  border-radius: 3px;
+  transition: width 1.5s ease;
+}
+
+.reduction-label {
+  font-size: 0.7rem;
+  color: var(--accent-green);
+  text-align: center;
+}
+
+/* JSON display */
+.viz-json {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.json-display {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Loop timeline */
+.loop-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.loop-node {
+  padding: 0.85rem;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  opacity: 0.3;
+  transition: all 0.4s;
+}
+
+.loop-node.visible {
+  opacity: 1;
+}
+
+.loop-node.current {
+  border-color: var(--accent-orange);
+  box-shadow: var(--glow-orange);
+}
+
+.loop-node.perfect.current {
+  border-color: var(--accent-green);
+  box-shadow: var(--glow-green);
+}
+
+.loop-node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.loop-version {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+}
+
+.loop-score {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.score-perfect {
+  color: var(--accent-green);
+}
+
+.loop-bar {
+  height: 4px;
+  background: var(--bg-card);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.loop-bar-fill {
+  height: 100%;
+  background: var(--accent-orange);
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+.loop-node.perfect .loop-bar-fill {
+  background: var(--accent-green);
+}
+
+.loop-change {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  padding-top: 0.25rem;
+}
+
+.loop-connector {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0.25rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pipeline-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .pipeline-viz {
+    position: relative;
+    top: 0;
+  }
+
+  .pipeline-text {
+    padding-bottom: 2rem;
+  }
+
+  .pipeline-title {
+    font-size: 1.75rem;
+  }
+
+  .viz-flow {
+    flex-direction: column;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+}

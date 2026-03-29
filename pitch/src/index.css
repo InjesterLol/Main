@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Core palette — dark terminal aesthetic */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f1018;
+  --bg-card: #141420;
+  --bg-card-elevated: #1a1a2e;
+
+  --text-primary: #e8e6f0;
+  --text-secondary: #8a8698;
+  --text-muted: #5a5670;
+
+  --accent-blue: #4a9eff;
+  --accent-orange: #ff8c42;
+  --accent-green: #34d399;
+  --accent-red: #ef4444;
+  --accent-purple: #a78bfa;
+
+  --border: #1e1e30;
+  --border-bright: #2a2a44;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  --glow-blue: 0 0 20px rgba(74, 158, 255, 0.15);
+  --glow-orange: 0 0 20px rgba(255, 140, 66, 0.15);
+  --glow-green: 0 0 20px rgba(52, 211, 153, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 3px;
+}
+
+/* Utility classes */
+.mono {
+  font-family: var(--font-mono);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.label-orange { color: var(--accent-orange); }
+.label-blue { color: var(--accent-blue); }
+.label-green { color: var(--accent-green); }
+.label-purple { color: var(--accent-purple); }
+
+/* Section layout */
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  position: relative;
+}
+
+.section-inner {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Scroll-driven split layout */
+.split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.split-text {
+  position: relative;
+}
+
+.split-viz {
+  position: sticky;
+  top: 4rem;
+  height: calc(100vh - 8rem);
+}
+
+@media (max-width: 768px) {
+  .split-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .split-viz {
+    position: relative;
+    top: 0;
+    height: auto;
+  }
+  .section {
+    padding: 2rem 1rem;
+  }
+}
